@@ -5,4 +5,4 @@ functional recursive descent parser for JSON.
 
 See also:
 
- * [Kotlin JSON parser](/konnik/kotlin-json-parser)
+ * [Kotlin JSON parser](https://github.com//konnik/kotlin-json-parser)
