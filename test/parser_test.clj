@@ -68,3 +68,31 @@
 ((deftest jsobject
    (testing "JSON object"
      (is (= (p/jsobject "{ \"a\": 3.14, \"b\" : true }") [{"a" 3.14 "b" true} nil])))))
+
+
+((deftest parse-json
+   (testing "Parse JSON - object"
+     (is (= (p/parse-json "{ \"a\": 3.14, \"b\" : true }") [{"a" 3.14 "b" true} nil])))
+
+   (testing "Parse JSON - array"
+     (is (= (p/parse-json "[\"a string\",true,false,3.14,null,{\"apa\":42}]")
+            [["a string",true,false,3.14,nil, {"apa" 42.0}] nil])))
+
+   (testing "Parse JSON - number"
+     (is (= (p/parse-json "3.1415E+2")
+            [314.15 nil])))
+
+   (testing "Parse JSON - false"
+     (is (= (p/parse-json "false")
+            [false nil])))
+
+   (testing "Parse JSON - true"
+     (is (= (p/parse-json "true")
+            [true nil])))
+
+   (testing "Parse JSON - null"
+     (is (= (p/parse-json "null")
+            [nil nil])))
+
+   (testing "Parse JSON - string"
+     (is (= (p/parse-json "\"a string\"") ["a string" nil])))))

@@ -226,3 +226,6 @@
   (one-of
    (keep-second (char-literal \{) (keep-second ws (keep-second (char-literal \}) (succeed {}))))
    (keep-second (char-literal \{) (keep-first members (char-literal \})))))
+
+
+(defn parse-json [input] (jsvalue input))
