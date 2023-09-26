@@ -72,27 +72,33 @@
 
 ((deftest parse-json
    (testing "Parse JSON - object"
-     (is (= (p/parse-json "{ \"a\": 3.14, \"b\" : true }") [{"a" 3.14 "b" true} nil])))
+     (is (= (p/parse-json "{ \"a\": 3.14, \"b\" : true }") {"a" 3.14 "b" true})))
 
    (testing "Parse JSON - array"
      (is (= (p/parse-json "[\"a string\",true,false,3.14,null,{\"apa\":42}]")
-            [["a string",true,false,3.14,nil, {"apa" 42.0}] nil])))
+            ["a string",true,false,3.14,nil, {"apa" 42.0}])))
 
    (testing "Parse JSON - number"
      (is (= (p/parse-json "3.1415E+2")
-            [314.15 nil])))
+            314.15)))
 
    (testing "Parse JSON - false"
      (is (= (p/parse-json "false")
-            [false nil])))
+            false)))
 
    (testing "Parse JSON - true"
      (is (= (p/parse-json "true")
-            [true nil])))
+            true)))
 
    (testing "Parse JSON - null"
      (is (= (p/parse-json "null")
-            [nil nil])))
+            nil)))
 
    (testing "Parse JSON - string"
-     (is (= (p/parse-json "\"a string\"") ["a string" nil])))))
+     (is (= (p/parse-json "\"a string\"") "a string")))
+
+   (testing "Parse JSON - unparsed chars gives error "
+     (is (= (p/parse-json "true korv") :parse_error_unparsed_chars)))
+
+   (testing "Parse JSON - invalid json"
+     (is (= (p/parse-json "lsajdlkasj") :parse_error_invalid_json)))))

@@ -228,4 +228,10 @@
    (keep-second (char-literal \{) (keep-first members (char-literal \})))))
 
 
-(defn parse-json [input] (jsvalue input))
+(defn parse-json [input]
+  (let [result (jsvalue input)
+        [value unparsed-chars] result]
+    (cond
+      (nil? result) :parse_error_invalid_json
+      (not (nil? unparsed-chars)) :parse_error_unparsed_chars
+      :else value)))
