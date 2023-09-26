@@ -34,7 +34,7 @@
       (when-some [[b bs] (parser-b as)]
         [(str a b) bs]))))
 
-(defn pjoin
+(defn chain
   "Kombinera fler parsers till en där resultatet från 
    alla parsers kombineras till en sträng."
   [& parsers]
@@ -63,15 +63,22 @@
 (def minus (char-literal \-))
 (def plus (char-literal \+))
 (def dot (char-literal \.))
-(def onenine (char-match #(#{\1 \2 \3 \4 \5 \6 \7 \8 \9} %1)))
-(def hex (char-match #(#{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9 \A \B \C \D \E \F \a \b \c \d \e \f} %1)))
-
+(def onenine (char-match #{\1 \2 \3 \4 \5 \6 \7 \8 \9}))
+(def hex (char-match #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9 \A \B \C \D \E \F \a \b \c \d \e \f}))
 
 (def digit (one-of zero onenine))
+
 (def digits
   (one-of
-   (pjoin digit #(digits %1))
+   (chain digit #(digits %))
    digit))
+
+(def integer
+  (one-of
+   (chain minus onenine digits)
+   (chain minus digit)
+   (chain onenine digits)
+   (chain digit)))
 
 (defn ws [input]
   ((one-of
@@ -81,16 +88,10 @@
     (keep-second (char-literal \u0009) #(ws %1))
     (succeed "")) input))
 
-(def integer
-  (one-of
-   (pjoin minus onenine digits)
-   (pjoin minus digit)
-   (pjoin onenine digits)
-   (pjoin digit)))
 
 (def fraction
   (one-of
-   (pjoin dot digits)
+   (chain dot digits)
    (succeed "")))
 
 
@@ -102,18 +103,18 @@
 
 (def exponent
   (one-of
-   (pjoin (char-literal \e) sign digits)
-   (pjoin (char-literal \E) sign digits)
+   (chain (char-literal \e) sign digits)
+   (chain (char-literal \E) sign digits)
    (succeed "")))
 
 
 (def jsnumber
   (fmap #(Double/parseDouble %1)
-        (pjoin integer fraction exponent)))
+        (chain integer fraction exponent)))
 
 (def hex-character
   (fmap (fn [x] (char (read-string (str "0x" x))))
-        (pjoin
+        (chain
          (keep-second (char-literal \u) hex)
          hex
          hex
@@ -139,11 +140,11 @@
 
 (def characters
   (one-of
-   (pjoin character (fn [input] (characters input)))
+   (chain character (fn [input] (characters input)))
    (succeed "")))
 
 (def jsstring
-  (pjoin (blank (char-literal \")) characters (blank (char-literal \"))))
+  (chain (blank (char-literal \")) characters (blank (char-literal \"))))
 
 (defn literal [literal-value]
   (fn [input]
@@ -196,7 +197,7 @@
       (when-some [[b bs] (parser-b as)]
         [(conj a b) bs]))))
 
-(defn pjoin2
+(defn chain2
   "Kombinera fler parsers till en där resultatet från 
    alla parsers kombineras till en sträng."
   [& parsers]
@@ -206,7 +207,7 @@
 (def member
   (fmap
    #(hash-map (nth %1 1) (nth %1 4))
-   (pjoin2
+   (chain2
     ws
     jsstring
     ws
@@ -216,7 +217,7 @@
 (def members
   (one-of
    (fmap #(merge (nth %1 0) (nth %1 2))
-         (pjoin2
+         (chain2
           member
           (char-literal \,)
           (fn [input] (members input))))
