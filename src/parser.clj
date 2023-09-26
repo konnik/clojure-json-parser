@@ -185,3 +185,30 @@
   (one-of
    (keep-second (char-literal \[) (keep-second ws (keep-second (char-literal \]) (succeed []))))
    (keep-second (char-literal \[) (keep-first elements (char-literal \])))))
+
+
+(defn pconcat2
+  "Kombinera två parsers till en där restultatet blir 
+   vekotr-konkaterneringen av de båda resultaten."
+  [parser-a parser-b]
+  (fn [input]
+    (when-some [[a as] (parser-a input)]
+      (when-some [[b bs] (parser-b as)]
+        [(conj a b) bs]))))
+
+(defn pjoin2
+  "Kombinera fler parsers till en där resultatet från 
+   alla parsers kombineras till en sträng."
+  [& parsers]
+  (reduce pconcat2 (succeed []) parsers))
+
+
+(def member
+  (fmap
+   #(vector (nth %1 1) (nth %1 4))
+   (pjoin2
+    ws
+    jsstring
+    ws
+    (char-literal \:)
+    element)))
