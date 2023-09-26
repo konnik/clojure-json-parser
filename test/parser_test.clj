@@ -56,3 +56,15 @@
      (is (= (p/element "      false      ") [false nil])))
    (testing "elements"
      (is (= (p/elements "\"apa\", null, true, false, 3.14") [["apa" nil true false 3.14] nil])))))
+
+((deftest member
+   (testing "member"
+     (is (= (p/member "\"a\": 3.14") [{"a" 3.14} nil])))))
+
+((deftest members
+   (testing "members"
+     (is (= (p/members "\"a\": 3.14, \"b\" : true") [{"a" 3.14 "b" true} nil])))))
+
+((deftest jsobject
+   (testing "JSON object"
+     (is (= (p/jsobject "{ \"a\": 3.14, \"b\" : true }") [{"a" 3.14 "b" true} nil])))))

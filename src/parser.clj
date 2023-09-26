@@ -159,7 +159,7 @@
 (def jsnull (and-then (literal "null") (constantly (succeed nil))))
 
 (declare jsarray)
-
+(declare jsobject)
 (def jsvalue
   (one-of
    jsnull
@@ -168,7 +168,7 @@
    jsnumber
    jsstring
    (fn [input] (jsarray input)) ;hur kan man forward referera till jsarray??
-    ;jsobject
+   (fn [input] (jsobject input)) ;hur kan man forward referera till jsobject
    ))
 
 (def element (keep-second ws (keep-first jsvalue ws)))
@@ -205,10 +205,24 @@
 
 (def member
   (fmap
-   #(vector (nth %1 1) (nth %1 4))
+   #(hash-map (nth %1 1) (nth %1 4))
    (pjoin2
     ws
     jsstring
     ws
     (char-literal \:)
     element)))
+
+(def members
+  (one-of
+   (fmap #(merge (nth %1 0) (nth %1 2))
+         (pjoin2
+          member
+          (char-literal \,)
+          (fn [input] (members input))))
+   member))
+
+(def jsobject
+  (one-of
+   (keep-second (char-literal \{) (keep-second ws (keep-second (char-literal \}) (succeed {}))))
+   (keep-second (char-literal \{) (keep-first members (char-literal \})))))
