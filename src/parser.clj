@@ -198,8 +198,8 @@
         [(conj a b) bs]))))
 
 (defn chain2
-  "Kombinera fler parsers till en där resultatet från 
-   alla parsers kombineras till en sträng."
+  "Chains multiple parsers into one and return the results from
+  each individual parser as a vector."
   [& parsers]
   (reduce pconcat2 (succeed []) parsers))
 
