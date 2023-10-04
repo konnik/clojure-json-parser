@@ -1,4 +1,4 @@
-# Clojure JSON Parser (from scratch)
+# Clojure JSON parser (from scratch)
 
 Trying to wrap my head around Clojure by writing a simple
 functional recursive descent JSON parser from scratch.
